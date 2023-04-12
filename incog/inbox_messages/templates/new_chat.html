@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .msger-inputarea {
+    display: flex;
+    padding: 2px;
+    width: 100%;
+    position: fixed;
+    background-color: var(--bg-color);
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .msger-inputarea * {
+    padding: 6px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+  }
+
+  .msger-input {
+    width: 100%;
+    background: var(--left-msg-bg);
+    color: var(--text-color);
+    margin: 0 43px;
+    /* set the margins to match the widths of the buttons */
+    bottom: 0;
+  }
+
+
+  .msger-send-btn {
+    background: var(--left-msg-bg);
+    color: #FFC107;
+    font-weight: bold;
+    cursor: pointer;
+    position: fixed;
+    bottom: 0;
+    right: 2px;
+  }
+
+  .media-send-btn {
+    background: var(--left-msg-bg);
+    color: #FFC107;
+    font-weight: bold;
+    cursor: pointer;
+    position: fixed;
+    bottom: 0;
+    left: 2px;
+  }
+
+  .vid-img-send-btn {
+    background: var(--left-msg-bg);
+    color: #FFC107;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 11px;
+    border-radius: 10px;
+  }
+  .modal-media-send-btn {
+    border: none;
+    background: var(--left-msg-bg);
+    color: #FFC107;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 11px;
+    border-radius: 10px;
+    float: left;
+  }
+</style>
+<p>Send <b>{{ request.resolver_match.kwargs.username }}</b> an Anonymous Message he wont know who sent it.</p>
+
+<p>Anonymous messaging is made simple with Incog. Our app provides a secure and safe way to communicate your thoughts and feelings to your friends and loved ones without revealing your identity. The core feature of our app is anonymity, which is highlighted in the design. You can send messages, images, and videos anonymously and receive replies without revealing your identity.</p>
+<p>When using Incog, we recommend keeping your messages positive and constructive. We expect our users to maintain a respectful and positive tone in their messages. Discriminatory language, hate speech, bullying, or any form of abusive content will not be tolerated.</p>
+<p>By using our service, you agree to our Privacy Policy, Terms of Service, and any other relevant policies.</p>
+<p>Our platform is user-friendly, and starting an anonymous chat is straightforward. You can send a message or a media file by filling out the message field. We take the safety and privacy of our users seriously, and we guarantee secure and safe messaging.</p>
+<p>So, leave a message to express your thoughts and feelings anonymously. Give Incog a try now and communicate your messages safely and securely!</p>
+<br>
+<!-- Image and Video Preview Modal-->
+<div class=" modal fade" id="mediaPreviewModal" tabindex="-1" role="dialog" aria-labelledby="mediaPreviewModalLabel"
+  aria-hidden="true" style="display: none;">
+  <div class="modal-dialog" role="document" style="width: 100%; height: 100%; margin: 0; padding: 0;">
+    <div class="modal-content" style="width: 100%; height: 100%;">
+      <div class="modal-header" style="color: var(--text-color); background-color: var(--bg-color);">
+        <div style="display: flex; align-items: center;">
+          <i class="fa fa-arrow-left" style="color: var(--text-color);" data-bs-dismiss="modal"></i>
+          <h5 class="modal-title" id="infoModalLabel" style="margin-left: 20px;">Preview</h5>
+        </div>
+      </div>
+
+      <div class="modal-body" id="media-preview-modal-body"
+        style="height: 100%; overflow: hidden; color: var(--text-color); background-color: var(--bg-color);">
+      </div>
+      <div class="modal-footer"
+        style="display: flex; justify-content: space-between; height: auto; color: var(--text-color); background-color: var(--bg-color);">
+        <button class="modal-media-send-btn" type="button" style="border: none;"
+          onclick="document.getElementById('media-input').click()">
+          <i class="fas fa-camera"></i>
+        </button>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="file" accept="image/*, video/*" id="media-input" style="display: none;" name="vid_img">
+          <input type="hidden" name="to_user" value="{{ request.resolver_match.kwargs.username }}">
+          <button class="vid-img-send-btn" type="submit" style="border: none;">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<form class="msger-inputarea" method="POST">
+  {% csrf_token %}
+  <button class="media-send-btn" type="button" onclick="document.getElementById('media-input').click()">
+    <i class="fas fa-camera"></i>
+  </button>
+  <textarea name="message" id="message" class="msger-input" placeholder="Message" cols="" rows="1" required></textarea>
+  <button class="msger-send-btn" type="submit">
+    <i class="fas fa-paper-plane"></i>
+  </button>
+  <input type="hidden" name="to_user" value="{{ request.resolver_match.kwargs.username }}">
+</form>
+<script>
+  document.getElementById('media-input').addEventListener('change', function () {
+    var file = this.files[0];
+    var preview = document.getElementById('media-preview-modal-body');
+
+    if (file.type.startsWith('image/')) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        preview.innerHTML = '<img src="' + reader.result + '" width="100%" height="100%">';
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('video/')) {
+      preview.innerHTML = '<video controls style="width: 100%; height: 100%;">' +
+        '<source src="' + URL.createObjectURL(file) + '" type="' + file.type + '">' +
+        '</video>';
+    }
+
+    $('#mediaPreviewModal').modal('show');
+  });
+  $('.btn-secondary').click(function () {
+    $('#mediaPreviewModal').modal('hide');
+    document.getElementById('media-input').value = '';
+  });
+</script>
+{% endblock %}

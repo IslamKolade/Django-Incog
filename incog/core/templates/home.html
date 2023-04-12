@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    #copy-icon {
+        font-size: 30px;
+        cursor: pointer;
+    }
+</style>
+{% if messages %}
+<div id="notification-container">
+    {% for message in messages %}
+    <div class="notification {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<audio id="notification-sound" src="{% static 'audio/notification.wav' %}" preload="auto"></audio>
+
+<script>
+    function playSound() {
+        var sound = document.getElementById("notification-sound");
+        sound.currentTime = 0;
+        sound.play();
+    }
+
+    var notificationContainer = document.getElementById("notification-container");
+    var notifications = notificationContainer.getElementsByClassName("notification");
+    for (var i = 0; i < notifications.length; i++) {
+        notifications[i].addEventListener("animationend", function () {
+            notificationContainer.removeChild(this);
+        });
+        playSound();
+    }
+
+    setTimeout(function () {
+        notificationContainer.style.display = "none";
+    }, 3000);
+</script>
+{% endif %}
+<!-- Add an id to the link element for easier selection -->
+<a href="{% url 'new_chat' request.user.username %}" id="anonymous-link"></a>
+<!-- Text instructions for using the app -->
+<p>Welcome to Incog! With our app, you can send and receive anonymous messages from your friends without revealing your identity. Here's how you can get started:</p>
+
+<ol>
+    <li>Share your unique link:<span id="copy-icon" title="Click to copy">&#x1F4CB;</span>
+    <span id="copy-text">Click the copy icon to get your link</span>, and share the link with your friends through social media, messaging apps, or any other preferred method.</li>
+    <li>Receive and send anonymous messages: Once your friends visit the link, they can send you anonymous messages without needing to reveal their identity. You'll receive their messages in real-time, and you can reply to them anonymously as well at <a href="{% url 'show_received_chats' %}">inbox</a>!</li>
+    <li>Edit your profile: To add social media contacts and a profile picture, you can edit your profile within the app at <a href="{% url 'edit-profile' %}">edit profile</a>. This information will be visible to those sending you messages, but hidden from those you send anonymous messages to.</li>
+</ol>
+
+<p>We hope you enjoy using our app for anonymous messaging. If you have any questions or need further assistance, feel free to contact us. Happy messaging!</p>
+<!-- JavaScript code for copying the link to clipboard -->
+<script>
+    // Function to copy text to clipboard
+    function copyToClipboard(text) {
+        const input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+    }
+
+    // Get the link and copy icon elements
+    const anonymousLink = document.getElementById('anonymous-link');
+    const copyIcon = document.getElementById('copy-icon');
+
+    // Add click event listener to the copy icon
+    copyIcon.addEventListener('click', () => {
+        copyToClipboard(anonymousLink.href);
+    });
+</script>
+
+{% endblock content %}

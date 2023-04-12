@@ -1,0 +1,13 @@
+{% extends "auth_base.html" %}
+{% block content %}
+<h1>Forgot Password?</h1>
+  <p>Don't worry, just enter your registered email address or username below. If an account exists with that username or email you will be able to request for a token to reset the password.</p>
+<form method="post" action="{% url 'account_check' %}">
+    {% csrf_token %}
+    <input type="text" name="email_or_username" placeholder="Email or username"><br><br>
+    {% for message in messages %}
+    <text style="color: red;">*{{message}}</text>
+    {% endfor %} <br><br>
+    <button type="submit" class="btn btn-primary">Check account</button>
+</form>
+{% endblock %}

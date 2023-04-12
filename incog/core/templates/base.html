@@ -1,0 +1,809 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+    <meta name="theme-color" content="#FFC244">
+    <link rel="apple-touch-icon" href="{% static 'icons/apple-icon-180.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Incog">
+    <title>Incog | {% block title %}{% endblock title %}</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="shortcut icon" href="{% static 'images/logo.png' %}" type="image/x-icon">
+    <!-- Boxicons CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<style>
+    #preloader{
+        background: #FFC244 url({% static 'images/logo.png' %}) no-repeat center center;
+        background-size: 30%;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        z-index: 10000;
+    }
+</style>
+<style>
+    /* CSS for the custom installation prompt */
+    #iOSinstallPrompt {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-color);
+        padding: 10px;
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+        z-index: 10;
+        overflow: hidden; /* Add overflow property to hide content when closed */
+        max-height: 65px; /* Set max height for closed state */
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        border: 2px solid var(--text-color); /* Add border property with desired color */
+    }
+
+
+    #iOSinstallPrompt::before {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 5px;
+        background-color: #000;
+        margin: 0 auto;
+        margin-bottom: 1px;
+        border-radius:5px;
+    }
+
+
+    #iOSinstallPrompt.open {
+        transform: translateY(0);
+        max-height: none; /* Remove max height when opened */
+    }
+
+    #iOSinstallPrompt .install-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    #iOSinstallPrompt .app-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+    }
+
+    #iOSinstallPrompt .app-name {
+        flex: 1;
+        font-weight: bold;
+    }
+
+    #iOSinstallPrompt .install-button {
+        background-color: #00A082;
+        color: #fff;
+        padding: 8px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 15px;
+        margin-right: 28px; /* Add margin for spacing */
+    }
+
+    #iOSinstallPrompt .install-details {
+        margin-top: 16px;
+        display: none;
+    }
+
+    #iOSinstallPrompt .description {
+        margin-bottom: 16px; /* Add margin for spacing */
+    }
+
+    #iOSinstallPrompt .description p {
+        margin-bottom: 8px; /* Add margin for spacing */
+    }
+
+    #iOSinstallPrompt .screenshot-images {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+    }
+
+    #iOSinstallPrompt .screenshot-image {
+        width: calc(33.33% - 8px);
+        height: auto;
+    }
+
+    #iOSinstallPrompt .close-button {
+        position: absolute;
+        top: 0; /* Position close button at the top */
+        right: 7px;
+        cursor: pointer;
+        font-size: 40px;
+    }
+</style>
+
+
+<style>
+    /* CSS for the custom installation prompt */
+    #installPrompt {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-color);
+        padding: 10px;
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+        z-index: 10;
+        overflow: hidden; /* Add overflow property to hide content when closed */
+        max-height: 65px; /* Set max height for closed state */
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        border: 2px solid var(--text-color); /* Add border property with desired color */
+    }
+
+
+    #installPrompt::before {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 5px;
+        background-color: #000;
+        margin: 0 auto;
+        margin-bottom: 1px;
+        border-radius:5px;
+    }
+
+
+    #installPrompt.open {
+        transform: translateY(0);
+        max-height: none; /* Remove max height when opened */
+    }
+
+    #installPrompt .install-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    #installPrompt .app-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+    }
+
+    #installPrompt .app-name {
+        flex: 1;
+        font-weight: bold;
+    }
+
+    #installPrompt .install-button {
+        background-color: #00A082;
+        color: #fff;
+        padding: 8px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 15px;
+        margin-right: 28px; /* Add margin for spacing */
+    }
+
+    #installPrompt .install-details {
+        margin-top: 16px;
+        display: none;
+    }
+
+    #installPrompt .description {
+        margin-bottom: 16px; /* Add margin for spacing */
+    }
+
+    #installPrompt .description p {
+        margin-bottom: 8px; /* Add margin for spacing */
+    }
+
+    #installPrompt .screenshot-images {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+    }
+
+    #installPrompt .screenshot-image {
+        width: calc(33.33% - 8px);
+        height: auto;
+    }
+
+    #installPrompt .close-button {
+        position: absolute;
+        top: 0; /* Position close button at the top */
+        right: 7px;
+        cursor: pointer;
+        font-size: 40px;
+    }
+</style>
+<style>
+    body,
+    nav,
+    nav .sidebar,
+    nav .sidebar-content,
+    .nav-link .link,
+    .nav-link .icon,
+    .camera-icon,
+    .received-tab,
+    .sent-tab {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    .fixed-div {
+        position: fixed;
+        top: 34px;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        color:#00A082;
+    }
+</style>
+<body>
+    <div id="preloader"></div>
+    <nav>
+        <div class="logo">
+            <i class="bx bx-menu menu-icon" style="color:#00A082"></i>
+            <div class="image-container">
+              <img src="{% static 'images/logo.png' %}" alt="logo">
+            </div>
+          </div>
+        <div class="sidebar">
+            <div class="logo-name">
+                <i class="bx bx-x x-icon" style="color:#00A082"></i>
+                <span><img src="{% static 'images/name-logo.png' %}" alt="name-logo" width="120px" height="40px"></span>
+            </div>
+
+            <div class="sidebar-content">
+                <ul class="lists">
+                    <li class="list">
+                        <a href="{% url 'home' %}" class="nav-link">
+                            <i class="bx bx-home-alt icon"></i>
+                            <span class="link">Home</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-home-alt icon"></i>
+                            <span class="link">All Messages</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-bar-chart-alt-2 icon"></i>
+                            <span class="link">Archived Messages</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="{% url 'show_received_chats' %}" class="nav-link">
+                            <i class="bx bx-bar-chart-alt-2 icon"></i>
+                            <span class="link">Inbox</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-bell icon"></i>
+                            <span class="link">Group Messages</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="{% url 'edit-profile' %}" class="nav-link">
+                            <i class="bx bx-message-rounded icon"></i>
+                            <span class="link">Edit Profile</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-heart icon"></i>
+                            <span class="link" onclick="requestPermission()">Allow Notifications</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-message-rounded icon"></i>
+                            <span class="link">Share Profile</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-pie-chart-alt-2 icon"></i>
+                            <span class="link">Change Password</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <span id="toggle-mode" class="link">Toggle Light/Dark Mode</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-cog icon"></i>
+                            <span class="link">Settings</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-message-rounded icon"></i>
+                            <span class="link">Contact Us</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="#" class="nav-link">
+                            <i class="bx bx-message-rounded icon"></i>
+                            <span class="link">Disclaimer</span>
+                        </a>
+                    </li>
+                    <li class="list">
+                        <a href="{% url 'logout' %}" class="nav-link">
+                            <i class="bx bx-log-out icon"></i>
+                            <span class="link">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="overlay"></section><br><br><br>
+    <hr class="fixed-div">
+
+    <div class="container">
+        {% block content %}
+
+        {% endblock content %}
+    </div><br>
+    <div id="installPrompt">
+        <div class="install-header">
+            <img class="app-icon" src="{% static 'images/logo.png' %}" alt="App Icon">
+            <div class="app-name">Incog</div>
+            <div class="install-button" id="installButton">Install App</div>
+            <div class="close-button" id="closeButton">&times;</div>
+        </div>
+        <div class="install-details">
+            <div class="description">
+                <p>This is a description of the app. It provides secure and encrypted messaging for users who prioritize privacy. Users can send messages, images, and files to their contacts without worrying about their information being intercepted or accessed by third parties.</p>
+                <p>Features:</p>
+                <ul>
+                    <li>End-to-end encryption for all messages and files</li>
+                    <li>Option to set self-destructing messages</li>
+                    <li>Secure login with fingerprint or PIN</li>
+                    <li>Group messaging with encryption</li>
+                    <li>Cloud backup for messages and files</li>
+                </ul>
+            </div>
+            <div class="screenshot-images">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 1">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 2">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 3">
+            </div>
+        </div>
+    </div>
+
+    <div id="iOSinstallPrompt">
+        <div class="install-header">
+            <img class="app-icon" src="{% static 'images/logo.png' %}" alt="App Icon">
+            <div class="app-name">Incog</div>
+            <div class="install-button" id="iOSinstallButton">Install App</div>
+            <div class="close-button" id="iOScloseButton">&times;</div>
+        </div>
+        <div class="install-details">
+            <div class="description">
+                <p>This is a description of the app. It provides secure and encrypted messaging for users who prioritize privacy. Users can send messages, images, and files to their contacts without worrying about their information being intercepted or accessed by third parties.</p>
+                <p>Features:</p>
+                <ul>
+                    <li>End-to-end encryption for all messages and files</li>
+                    <li>Option to set self-destructing messages</li>
+                    <li>Secure login with fingerprint or PIN</li>
+                    <li>Group messaging with encryption</li>
+                    <li>Cloud backup for messages and files</li>
+                </ul>
+            </div>
+            <div class="screenshot-images">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 1">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 2">
+                <img class="screenshot-image" src="{% static 'images/logo.png' %}" alt="Screenshot 3">
+            </div>
+        </div>
+    </div>
+    <!-- START INITIALIZATION CODE -->
+    <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyApjse76z95eSYA0ER094lKMJqsgcyx0mQ",
+        authDomain: "stealth-chat-test.firebaseapp.com",
+        databaseURL: "https://fcm-test-88425.firebaseio.com",
+        storageBucket: "stealth-chat-test.appspot.com",
+        messagingSenderId: "721682883180"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <!-- END INITIALIZATION CODE -->
+    <!-- ******************************************************** -->
+    <script>
+      // [START get_messaging_object]
+      // Retrieve Firebase Messaging object.
+      const messaging = firebase.messaging();
+      // [END get_messaging_object]
+
+      // [START refresh_token]
+      // Callback fired if Instance ID token is updated.
+      messaging.onTokenRefresh(function() {
+        messaging.getToken()
+        .then(function(refreshedToken) {
+          console.log('Token refreshed.');
+          // Indicate that the new Instance ID token has not yet been sent to the
+          // app server.
+          setTokenSentToServer(false);
+          // Send Instance ID token to app server.
+          sendTokenToServer(refreshedToken);
+          // [START_EXCLUDE]
+          // Display new Instance ID token and clear UI of all previous messages.
+          resetUI();
+          // [END_EXCLUDE]
+        })
+        .catch(function(err) {
+          console.log('Unable to retrieve refreshed token ', err);
+          showToken('Unable to retrieve refreshed token ', err);
+        });
+      });
+      // [END refresh_token]
+
+      // [START receive_message]
+      // Handle incoming messages. Called when:
+      // - a message is received while the app has focus
+      // - the user clicks on an app notification created by a sevice worker
+      //   `messaging.setBackgroundMessageHandler` handler.
+      messaging.onMessage(function(payload) {
+        console.log("Message received. ", payload);
+        // [START_EXCLUDE]
+        // Update the UI to include the received message.
+        appendMessage(payload);
+        // [END_EXCLUDE]
+      });
+      // [END receive_message]
+
+      function resetUI() {
+        showToken('loading...');
+        // [START get_token]
+        // Get Instance ID token. Initially this makes a network call, once retrieved
+        // subsequent calls to getToken will return from cache.
+
+        console.log("getting token")
+        //messaging.getToken().then((resp) => {
+        //  console.log(resp)
+        //}) This is the code that causes bugs that new token is generated on page refresh
+        messaging.getToken()
+        .then(function(currentToken) {
+          if (currentToken) {
+            sendTokenToServer(currentToken);
+          } else {
+            // Show permission request.
+            // Show permission UI.
+            setTokenSentToServer(false);
+          }
+        })
+        .catch(function(err) {
+          console.log('An error occurred while retrieving token. ', err);
+          showToken('Error retrieving Instance ID token. ', err);
+          setTokenSentToServer(false);
+        });
+        console.log("End get token")
+      }
+      // [END get_token]
+
+      function showToken(currentToken) {
+        // Show token in console and UI.
+        console.log(currentToken)
+      }
+
+      // Send the Instance ID token your application server, so that it can:
+      function sendTokenToServer(currentToken) {
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+
+
+        if (!isTokenSentToServer()) {
+          console.log('Sending token to server...');
+          const csrftoken = getCookie('csrftoken');
+          // TODO(developer): Send the current token to your server.
+          fetch('http://localhost:8000/routes/devices/', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+            body: JSON.stringify({
+              'registration_id': currentToken,
+              'type': 'web',
+            }),
+            credentials: "include",
+          }).then(function(response) {
+            console.log(response);
+            setTokenSentToServer(true);
+          })
+        } else {
+          console.log('Token already sent to server so won\'t send it again ' +
+              'unless it changes');
+        }
+
+      }
+
+      function isTokenSentToServer() {
+        if (window.localStorage.getItem('sentToServer') == 1) {
+              return true;
+        }
+        return false;
+      }
+
+      function setTokenSentToServer(sent) {
+        if (sent) {
+          window.localStorage.setItem('sentToServer', 1);
+        } else {
+          window.localStorage.setItem('sentToServer', 0);
+        }
+      }
+
+      function requestPermission() {
+        console.log('Requesting permission...');
+        // [START request_permission]
+        messaging.requestPermission()
+        .then(function() {
+          console.log('Notification permission granted.');
+          // TODO(developer): Retrieve an Instance ID token for use with FCM.
+          // [START_EXCLUDE]
+          // In many cases once an app has been granted notification permission, it
+          // should update its UI reflecting this.
+          resetUI();
+          // [END_EXCLUDE]
+        })
+        .catch(function(err) {
+          console.log('Unable to get permission to notify.', err);
+        });
+        // [END request_permission]
+      }
+      resetUI();
+    </script>
+    <script>
+        var installPrompt = document.getElementById('installPrompt');
+        var installButton = document.getElementById('installButton');
+        var closeButton = document.getElementById('closeButton');
+        var startY;
+        var threshold = 100; // Minimum swipe distance to trigger open/close action
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Check if app is running on iOS
+            if (/iPad|iPhone|iPod/.test(navigator.platform)) {
+                // Check if app is already installed in standalone mode
+                if (!window.matchMedia("(display-mode: standalone)").matches) {
+                    if (!window.location.href.includes("/inbox/")) {
+                    // App is not installed, show custom install prompt
+                    document.getElementById("iOSinstallPrompt").style.display = "block";
+                    }
+                }
+            }
+        });
+
+        document.getElementById("iOSinstallButton").addEventListener("click", function() {
+            // Check if app is running on iOS
+            if (/iPad|iPhone|iPod/.test(navigator.platform)) {
+                // Check if app is already installed in standalone mode
+                if (!window.matchMedia("(display-mode: standalone)").matches) {
+                    // App is not installed, show custom install prompt
+                    document.getElementById("iOSinstallPrompt").style.display = "none";
+                    alert("To add this app to your home screen, tap the share button, then select 'Add to Home Screen' from the options.");
+                }
+            }
+        });
+
+
+
+        // Add event listener for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', function(event) {
+            event.preventDefault(); // Prevent the default install prompt behavior
+            deferredPrompt = event;
+            // Store the event for later us
+            if (!window.location.href.includes("/inbox/")) {
+            installPrompt.style.display = 'block'; // Set display property to 'block' to show the install promp
+            }
+        });
+        // Add event listener for install button click
+        installButton.addEventListener('click', function() {
+            if (typeof deferredPrompt !== 'undefined') {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        // Add event listener for close button click
+        closeButton.addEventListener('click', function() {
+            installPrompt.style.display = 'none';
+        });
+        // Add event listener for close button click
+        document.getElementById("iOScloseButton").addEventListener('click', function() {
+            document.getElementById("iOSinstallPrompt").style.display = 'none';
+        });
+    </script>
+    <script>
+        // Get the toggle button and the body element
+        const toggleButton = document.getElementById('toggle-mode');
+        const body = document.body;
+
+        // Define the light mode styles
+        const lightModeStyles = {
+            '--bg-color': '#FFC244',
+            '--text-color': 'black',
+            '--left-msg-bg': 'rgba(239,243,244,0.8)',
+            // '--chat-header': 'rgba(249, 253, 254, 0.8)',
+        };
+
+        // Define the dark mode styles
+        const darkModeStyles = {
+            '--bg-color': 'black',
+            '--text-color': 'white',
+            '--left-msg-bg': 'rgba(32,35,39,0.8)',
+            // '--chat-header': 'rgba(47, 51, 54, 0.8)',
+        };
+
+        // Function to apply the given styles to the body element
+        function applyStyles(styles) {
+            Object.entries(styles).forEach(([prop, value]) => {
+                body.style.setProperty(prop, value);
+            });
+        }
+
+        // Function to toggle between light and dark mode
+        function toggleLightDarkMode() {
+            // Check if the body element has the "dark-mode" class
+            if (body.classList.contains('dark-mode')) {
+                // If it does, remove the class and apply the light mode styles
+                body.classList.remove('dark-mode');
+                applyStyles(lightModeStyles);
+
+                // Update the toggle button text
+                toggleButton.textContent = 'Switch to Dark Mode';
+
+                // Save the current mode in local storage
+                localStorage.setItem('mode', 'light');
+            } else {
+                // If it doesn't, add the class and apply the dark mode styles
+                body.classList.add('dark-mode');
+                applyStyles(darkModeStyles);
+
+                // Update the toggle button text
+                toggleButton.textContent = 'Switch to Light Mode';
+
+                // Save the current mode in local storage
+                localStorage.setItem('mode', 'dark');
+            }
+        }
+
+        // Add an event listener to the toggle button to handle clicks
+        toggleButton.addEventListener('click', toggleLightDarkMode);
+
+        // On page load, check the value saved in local storage
+        // and apply the appropriate styles
+        const savedMode = localStorage.getItem('mode');
+
+        // If no mode is saved in local storage, set the initial mode to light
+        if (!savedMode) {
+            applyStyles(lightModeStyles);
+        } else {
+            // If a mode is saved, apply the corresponding styles
+            if (savedMode === 'dark') {
+                body.classList.add('dark-mode');
+                applyStyles(darkModeStyles);
+                toggleButton.textContent = 'Switch to Light Mode';
+            } else {
+                applyStyles(lightModeStyles);
+                toggleButton.textContent = 'Switch to Dark Mode';
+            }
+        }
+    </script>
+
+    <script>
+        const navBar = document.querySelector("nav"),
+            menuBtns = document.querySelectorAll(".menu-icon"),
+            cancelBtns = document.querySelectorAll(".x-icon"),
+            overlay = document.querySelector(".overlay");
+
+        menuBtns.forEach((menuBtn) => {
+            menuBtn.addEventListener("click", () => {
+                navBar.classList.toggle("open");
+            });
+        });
+
+        overlay.addEventListener("click", () => {
+            navBar.classList.remove("open");
+        });
+        cancelBtns.forEach((cancelBtn) => {
+            cancelBtn.addEventListener("click", () => {
+                navBar.classList.toggle("open");
+            });
+        });
+
+        overlay.addEventListener("click", () => {
+            navBar.classList.remove("open");
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-fancybox]').fancybox({
+                buttons: [
+                    'slideShow',
+                    'zoom',
+                    'fullScreen',
+                    'close'
+                ],
+                thumbs: {
+                    autoStart: true
+                }
+            });
+
+        });
+
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    <script>
+        var loader = document.getElementById("preloader");
+        window.addEventListener('load', function () {
+            loader.style.display = "none";
+        })
+    </script>
+</html>

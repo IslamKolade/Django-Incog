@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ===== Iconscout CSS ===== -->
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+  <title>Incog | Sign Up</title>
+</head>
+<style>
+  /* ===== Google Font Import - Poformsins ===== */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFC244;
+  }
+
+input{
+background-color:#FFC244;
+outline:none;
+}
+  .container {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+    max-height: 100%;
+    background: #FFC244;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    overflow-y: scroll;
+    margin: 0 20px;
+  }
+
+  .container .forms {
+    display: flex;
+    align-items: center;
+    max-height: 100%;
+    width: 200%;
+    transition: height 0.2s ease;
+  }
+
+
+  .container .form {
+    width: 50%;
+    padding: 10px;
+    background-color: #FFC244;
+    transition: margin-left 0.18s ease;
+  }
+
+  .container.active .login {
+    margin-left: -50%;
+    opacity: 0;
+    transition: margin-left 0.18s ease, opacity 0.15s ease;
+  }
+
+  .container .signup {
+    opacity: 0;
+    transition: opacity 0.09s ease;
+  }
+
+  .container.active .signup {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  .container.active .forms {
+    height: 600px;
+  }
+
+  .form .input-field {
+    position: relative;
+    height: 30px;
+    width: 100%;
+    margin-top: 10px
+    background-color:#FFC244;
+  }
+ .input-field{
+ background-color:#FFC244;
+
+}
+  .input-field input {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    padding: 0 35px;
+    border: none;
+    outline: none
+    background-color:#FFC244;
+    font-size: 16px;
+    border-bottom: 2px solid #00A082;
+    border-top: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .input-field input:is(:focus, :valid) {
+    border-bottom-color: #00A082;
+  }
+
+  .input-field i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #00A082;
+    font-size: 23px;
+    transition: all 0.2s ease;
+  }
+
+  .input-field input:is(:focus, :valid)~i {
+    color: #00A082;
+  }
+
+  .input-field i.icon {
+    left: 0;
+  }
+
+  .input-field i.showHidePw {
+    right: 0;
+    cursor: pointer;
+    padding: 10px;
+  }
+
+  .form .checkbox-text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .form .text {
+    color: #333;
+    font-size: 14px;
+  }
+
+  .form a.text {
+    color: #4070f4;
+    text-decoration: none;
+  }
+
+  .form a:hover {
+    text-decoration: underline;
+  }
+
+  .form .button {
+    margin-top: 1px;
+  }
+
+  .form .button input {
+    border: none;
+    color: white;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    background-color: #00A082;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .button input:hover {
+    background-color: #265df2;
+  }
+
+  .form .login-signup {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .login-text {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 600;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: 2px dotted #00A082;
+    border-radius: 5px;
+    padding: 10px 10px;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div class="forms">
+      <div class="form login">
+        <img src="{% static 'images/logo.png' %}" alt="" height="80" width="80">&nbsp;&nbsp;
+        <img src="{% static 'images/name-logo.png' %}" alt="" height="50" width="150"><br>
+        <div class="login-text">
+          <span class="login-text-label">Sign Up</span>
+        </div><br><br>
+        <form action="{% url 'signup' %}?next={{ request.GET.next }}" method="POST">
+          {% csrf_token %}
+          {% if messages %}
+          {% for message in messages %}
+          {% if "success" in message.tags %}
+          <b style="color: green;">{{ message }}</b>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+          <div class="input-field">
+            <input type="text" name="username" maxlength="32" minlength="4" id="id_username"
+              placeholder="Enter username" value="{{ form.username.value|default:'' }}">
+            <i class="uil uil-user"></i>
+          </div>
+          {% if form.username.errors %}
+          {% for error in form.username.errors %}
+          <small style="color: red;">*{{ error }}</small>
+          {% endfor %}
+          {% endif %}
+          <div class="input-field">
+            <input type="email" name="email" maxlength="100" minlength="5" id="id_email"
+              placeholder="Enter email (Optional)" value="{{ form.email.value|default:'' }}">
+            <i class="uil uil-envelope icon"></i>
+          </div>
+          {% if form.email.errors %}
+          {% for error in form.email.errors %}
+          <small style="color: red;">*{{ error }}</small>
+          {% endfor %}
+          {% endif %} <br>
+          <small>Email is only used for password reset.</small>
+          <div class="input-field">
+            <input type="password" name="password" required id="id_password" placeholder="Create password"
+              value="{{ form.password.value|default:'' }}" class="password">
+            <i class="uil uil-lock icon"></i>
+            <i class="uil uil-eye-slash showHidePw"></i>
+          </div>
+          {% if form.password.errors %}
+          {% for error in form.password.errors %}
+          <small style="color: red;">*{{ error }}</small>
+          {% endfor %}
+          {% endif %}
+          <div class="input-field">
+            <input type="password" name="confirm_password" required id="id_confirm_password" class="password"
+              placeholder="Confirm password" value="{{ form.confirm_password.value|default:'' }}">
+            <i class="uil uil-lock icon"></i>
+            <i class="uil uil-eye-slash showHidePw"></i>
+          </div>
+          {% if form.confirm_password.errors %}
+          {% for error in form.confirm_password.errors %}
+          <small style="color: red;">*{{ error }}</small>
+          {% endfor %}
+          {% endif %}
+          <div class="checkbox-text">
+            <div class="checkbox-content">
+              <label for="termCon" class="text">By signing up, you agree to our <a href="#">Terms and
+                  Conditions.</a></label>
+            </div>
+          </div>
+
+          <div class="input-field button">
+            <input type="submit" value="Sign Up">
+          </div>
+        </form>
+        <div class="login-signup">
+          <span class="text">Already a member?
+            <a href="{% url 'login' %}" class="text login-link">Login Now</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.querySelector(".container"),
+      pwShowHide = document.querySelectorAll(".showHidePw"),
+      pwFields = document.querySelectorAll(".password"),
+      signUp = document.querySelector(".signup-link"),
+      login = document.querySelector(".login-link");
+
+    //   js code to show/hide password and change icon
+    pwShowHide.forEach(eyeIcon => {
+      eyeIcon.addEventListener("click", () => {
+        pwFields.forEach(pwField => {
+          if (pwField.type === "password") {
+            pwField.type = "text";
+
+            pwShowHide.forEach(icon => {
+              icon.classList.replace("uil-eye-slash", "uil-eye");
+            })
+          } else {
+            pwField.type = "password";
+
+            pwShowHide.forEach(icon => {
+              icon.classList.replace("uil-eye", "uil-eye-slash");
+            })
+          }
+        })
+      })
+    })
+  </script>
+</body>
+
+</html>

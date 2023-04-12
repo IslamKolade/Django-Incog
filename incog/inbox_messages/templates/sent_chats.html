@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    /* CSS */
+    .messages-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .messages-header {
+        position: fixed;
+        width: 100%;
+        left: 0;
+        background-color: var(--chat-header);
+        backdrop-filter: blur(10px);
+        z-index: 5;
+    }
+
+    .messages-tabs {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        position: fixed;
+        top: 50px;
+        left: 0;
+        background-color: var(--chat-header);
+        backdrop-filter: blur(10px);
+        z-index: 5;
+        border-bottom: 5px solid #00A082;
+    }
+
+    .messages-tabs div {
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .active-tab {
+        border: #00A082 3px solid;
+        border-radius: 10px;
+    }
+
+    .active-section {
+        display: block;
+    }
+</style>
+<style>
+    .chat-list {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .chat-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid #00A082;
+        cursor: pointer;
+    }
+
+    .chat-item:hover {
+        background-color: #E6A91E;
+    }
+
+    .chat-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 16px;
+    }
+
+    .chat-text {
+        flex: 1;
+        width: 1000px;
+    }
+
+
+    .total_unread-messages {
+        display: inline-block;
+        background-color: #00A082;
+        color: var(--text-color);
+        border-radius: 50%;
+        padding: 2px 6px;
+        margin-left: 5px;
+    }
+
+
+    .chat-name {
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .chat-message {
+        color: #666;
+    }
+
+    .chat-unread {
+        font-size: 12px;
+        margin-left: auto;
+        background-color: #00A082;
+        color: white;
+        padding: 2px 10px;
+        border-radius: 50%;
+    }
+
+    @media (min-width: 450px) and (max-width: 768px) {
+
+        /* styles to apply when the screen width is between 600px and 900px */
+        .chat-text {
+            flex: 1;
+            width: 550px;
+        }
+
+    }
+
+    @media (min-width: 320px) and (max-width: 430px) {
+
+        /* styles to apply when the screen width is between 600px and 900px */
+        .chat-text {
+            flex: 1;
+            width: 300px;
+        }
+
+    }
+
+    @media (min-width: 320px) and (max-width: 380px) {
+
+        /* styles to apply when the screen width is between 600px and 900px */
+        .chat-text {
+            flex: 1;
+            width: 250px;
+        }
+
+    }
+
+    @media (min-width: 1000px) and (max-width: 1030px) {
+
+        /* styles to apply when the screen width is between 600px and 900px */
+        .chat-text {
+            flex: 1;
+            width: 400px;
+        }
+
+    }
+
+    @media (max-width: 325px) {
+
+        /* styles to apply when the screen width is between 600px and 900px */
+        .chat-text {
+            flex: 1;
+            width: 190px;
+        }
+
+    }
+</style>
+<style>
+    .box-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(239, 243, 244, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .box {
+        background: var(--bg-color);
+        color: var(--text-color);
+        padding: 5px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        width: 90%;
+        height: 60%;
+        text-align: center;
+        position: relative;
+    }
+
+    .btn.okay {
+        background: #FFC107;
+        color: var(--text-color);
+    }
+</style>
+{% if not chats %}
+<h5 class="messages-header">Messages</h5>
+<p>No Chats yet.</p>
+{% endif %}
+{% if messages %}
+{% for message in messages %}
+<div class="box-container">
+    <div class="box">
+        <h3>Conversation has been reported</h3>
+        <p>{{message}}</p>
+        <button class="btn okay">Okay</button>
+    </div>
+</div>
+<script>
+    const okayBtn = document.querySelector('.okay');
+    const messageBox = document.querySelector('.box-container');
+
+    okayBtn.addEventListener('click', () => {
+        messageBox.style.display = 'none';
+    });
+</script>
+{% endfor %}
+{% endif %}
+{% if chats %}
+<div class="messages-container">
+    <div class="messages-tabs">
+        <h5>Messages</h5>
+        <a href="{% url 'show_received_chats' %}"
+                style="text-decoration: none; color: var(--text-color);">Received
+                {% if received_total_unread_messages %}
+                <span class="total_unread-messages">{{ received_total_unread_messages }}</span>
+                {% endif %}
+            </a>
+        <div class="sent-tab active-tab">Sent
+            {% if sent_total_unread_messages %}
+            <span class="total_unread-messages">{{ sent_total_unread_messages }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+    {% for chat in chats %}
+    {% if chat.sender == request.user %}
+    <div class="sent-messages">
+        <div class="chat-item">
+            <a href="{{chat.recipient.profile.profile_picture.url}}" data-fancybox><img
+                    src="{{chat.recipient.profile.profile_picture.url}}" class="chat-image" alt="Profile Image"></a>
+            <a href="{% url 'show_messages' chat.url %}" style="text-decoration: none; color:var(--text-color);">
+                <div class="chat-text">
+                    <div class="chat-name">{{chat.recipient}}</div>
+                </div>
+                <small>Chat started {{chat.created_at|date}}</small>
+            </a>
+            {% if chat.unread_messages %}
+            <div class="chat-unread">{{ chat.unread_messages }}</div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <p>No Chats yet.</p>
+    {% endif %}
+    {% endblock %}
